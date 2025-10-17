@@ -9,6 +9,13 @@ The current implementation focuses on:
 - Incorporating a **sequencing error rate** `ε` into the expected donor-allele observation probability.
 - Estimating the donor mixture proportion `p` by **grid-based Bayesian inference** over a restricted range (default 0%–5%).
 
+## Modular design (current)
+
+The Bayesian mixture estimation workflow has been refactored into reusable modules under `src/mixture_bayes/` and a thin notebook entry point:
+
+- **Modules**: `src/mixture_bayes/` (simulation, inference, preprocessing, plotting)
+- **Notebook**: `src/Bayesian_Mixture_Estimation_Pipeline_Refactored.ipynb` (imports modules and runs the pipeline)
+
 ## Mathematical model (current)
 
 For each informative position `i`:
