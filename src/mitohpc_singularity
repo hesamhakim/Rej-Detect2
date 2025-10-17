@@ -1,0 +1,186 @@
+# start a singularity instance
+#singularity pull mitohpc.sif library://dpuiu/project-dir/mitohpc:latest
+
+
+SINGULARITY_PATH="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/singularity"
+MitoHPC_WD="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mitohpc"
+HP_SDIR="/mmfs1/research/hhakimjavadi/local_apps/MitoHPC/scripts"
+MitoHPC_WD="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mitohpc"
+vim $MitoHPC_WD/init.hs38DH.sh
+
+### interactive shell
+cd $MitoHPC_WD
+singularity shell --env HP_SDIR="/MitoHPC/scripts/" $SINGULARITY_PATH/mitohpc.sif --pwd
+
+### execute by singularity
+singularity exec --env HP_SDIR="/MitoHPC/scripts/" $SINGULARITY_PATH/mitohpc.sif bash $MitoHPC_WD/singularity_run.sh
+
+
+## some of the tools required for the pipeline are not avilable in the singularity instance
+## I created a conda env that have this tools and add the their path to singularity
+CONDA_BIN="/mmfs1/home/hhakimjavadi/.conda/envs/mitohpc/bin"
+export PATH=$PATH:$CONDA_BIN
+
+## this step is not required on singulariy
+#MitoHPC="/mmfs1/research/hhakimjavadi/local_apps/MitoHPC/"
+#cd $MitoHPC/scripts
+#export HP_SDIR=`pwd`
+#echo "export HP_SDIR=`pwd`" >> ~/.bashrc
+#. ./init.hs38DH.sh
+
+## use pipeline
+MitoHPC_WD="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mitohpc"
+cd $MitoHPC_WD
+## if necessary (It is a good idea to start from the original init.sh because after multiple editing you maigh've modified some line mistakenly )
+#cp -i ${HP_SDIR}/init.hs38DH.sh .
+
+## edit init.hs38DH.sh for change of inpu, output, CPU mem ...
+## very important !!!!! the script works only with a specific number of cores and memory size
+## the one that I tried and worked core=1 and mem=3GB (default); core=4 and memory =12; cpu =10 and mem=40GB. more cores and larger mem size results in skipping some steps and zero variant called
+nano $MitoHPC_WD/init.hs38DH.sh
+
+##resources:
+cpu=10
+mem=40G
+#INPUT/OUTPUT
+bams="/mmfs1/research/hhakimjavadi/projects/tissue_mito_heteroplasmy/data/AnVILL/dl/RNAseq_batch1/completed/"
+output="/mmfs1/research/hhakimjavadi/projects/tissue_mito_heteroplasmy/workflow/mitohpc/output_mitohpc_RNAseq_batch1_run4/completed/"
+
+. ./init.hs38DH.sh
+rm -f $HP_IN
+. ./init.hs38DH.sh
+
+##make sure the list of input and output is updated
+nano $HP_IN
+
+##RUN PIPELINE
+$HP_SDIR/run.sh > run.all.sh
+
+bash ./run.all.sh
+##OR
+grep filter.sh ./run.all.sh | parallel -j 2 
+getSummary.sh
+
+
+
+## summary:
+SINGULARITY_PATH="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/singularity"
+MitoHPC_WD="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mitohpc"
+HP_SDIR="/MitoHPC/scripts/"
+
+singularity exec --env HP_SDIR="/MitoHPC/scripts/" $SINGULARITY_PATH/mitohpc.sif \
+bash $HP_SDIR/getSummary.sh /mmfs1/research/hhakimjavadi/projects/tissue_mito_heteroplasmy/workflow/mitohpc/output_mitohpc_RNAseq_batch1_run4/
+
+getSummary.sh
+
+
+######## installed version ####################################################
+MitoHPC_WD="/home/ubuntu/s3data/MitoHPC_out/ACEs_lowpass_20240329"
+cd $MitoHPC_WD
+HP_SDIR="/home/ubuntu/local_apps/MitoHPC/scripts/"
+vim $MitoHPC_WD/init.hs38DH.sh
+
+. ./init.hs38DH.sh
+rm -f $HP_IN
+. ./init.hs38DH.sh
+
+##RUN PIPELINE
+$HP_SDIR/run.sh > run.all.sh
+
+
+bash ./run.all.sh
+##OR
+grep filter.sh ./run.all.sh | parallel -j 3
+grep filter.sh ./run.all.sh | parallel -j 2; getSummary.sh
+
+in="/home/ubuntu/s3data/vcfs/ACEs/lowpass_wgs_dragen_out/dragen_output_20240329/all_bams/"
+out=$MitoHPC_WD/out
+in_txt=$MitoHPC_WD/in.txt"
+
+########DOCKER#######################################################################################
+####################################################################################################
+
+
+
+### on EC2 research
+
+~/software/goofys.0.24/goofys --profile chlacpm chlacpm:shared/private/hhakimjavadi ~/s3data
+
+HP_SDIR="/home/ubuntu/local_apps/MitoHPC/scripts/"
+#echo "export HP_SDIR=`pwd`" >> ~/.bashrc
+DOCKER_PATH="/home/ubuntu/projects/tissue_mito_heteroplasmy/workflow/docker"
+MitoHPC_WD="/home/ubuntu/projects/tissue_mito_heteroplasmy/workflow/mitohpc"
+vim $MitoHPC_WD/init.hs38DH.sh
+vim $MitoHPC_WD/mitohpc.sh
+#docker exec --env HP_SDIR="/MitoHPC/scripts/" $SINGULARITY_PATH/mitohpc.sif bash $MitoHPC_WD/singularity_run.sh
+
+cd $MitoHPC_WD
+bams="/home/ubuntu/s3data/bams/GTex/AnVILL/dl/"
+out="/home/ubuntu/projects/tissue_mito_heteroplasmy/workflow/mitohpc/output_mitohpc_RNAseq_batch1_run9/"
+hp_in=$MitoHPC_WD/in.txt
+
+docker run -e HP_ADIR="$bams" -e HP_ODIR="$out" -e HP_IN="$hp_in" -e MitoHPC_WD=$MitoHPC_WD -w $PWD -v $HOME:$HOME -u "$(id -u):$(id -g)" dpuiu1/mitohpc ./mitohpc.sh
+
+## interactive
+docker run -e HP_ADIR="$bams" -e HP_ODIR="$out" -e HP_IN="$hp_in" -e MitoHPC_WD=$MitoHPC_WD -w $PWD -v $HOME:$HOME -u "$(id -u):$(id -g)" -it dpuiu1/mitohpc /usr/bin/bash
+
+HP_SDIR="/home/ubuntu/local_apps/MitoHPC/scripts/"
+rm -f $HP_IN
+. ./init.hs38DH.sh
+rm -f $HP_IN
+. ./init.hs38DH.sh
+
+
+
+
+
+
+
+
+
+
+
+
+MitoHPC="/mmfs1/research/hhakimjavadi/local_apps/MitoHPC"
+
+HP_SDIR=$MitoHPC/scripts
+cd $HP_SDIR
+. ./init.hs38DH.sh
+
+##$HP_SDIR/install_sysprerequisites.sh
+
+/mmfs1/research/hhakimjavadi/projects/tissue_mito_heteroplasmy/workflow/mitohpc/output_mitohpc_RNAseq_batch1//GTEX-ZZPU-2626-SM-5E45Y.Aligned.sortedByCoord.out.patched.md/GTEX-ZZPU-2626-SM-5E45Y.Aligned.sortedByCoord.out.patched.md.mutect2.00.vcf
+
+
+rm -f $HP_IN
+cd $MitoHPC_WD
+. ./init.hs38DH.sh
+
+
+HP_SDIR="/mmfs1/research/hhakimjavadi/projects/tissue_mito_heteroplasmy/workflow/mitohpc"
+
+
+apt-get update && sudo apt-get install -y \
+build-essential \
+libssl-dev \
+uuid-dev \
+libgpgme11-dev \
+squashfs-tools \
+libseccomp-dev \
+pkg-config
+
+
+sudo yum update -y && \
+sudo yum groupinstall -y 'Development Tools' && \
+sudo yum install -y \
+openssl-devel \
+libuuid-devel \
+libseccomp-devel \
+wget \
+squashfs-tools
+
+
+export VERSION=1.11 OS=linux ARCH=amd64 && \
+wget https://dl.google.com/go/go$VERSION.$OS-$ARCH.tar.gz && \
+sudo tar -C /usr/local -xzvf go$VERSION.$OS-$ARCH.tar.gz && \
+rm go$VERSION.$OS-$ARCH.tar.gz

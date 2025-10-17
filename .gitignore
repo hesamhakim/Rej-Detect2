@@ -1,0 +1,106 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Workflow generated outputs (keep workflow code/configs tracked)
+workflow/**/out/
+workflow/**/results/
+workflow/**/work/
+workflow/**/.nextflow*
+workflow/**/trace*
+workflow/**/timeline*
+workflow/**/report*
+workflow/**/multiqc/
+workflow/**/multiqc_data/
+
+# Workflow tool outputs (genomics artifacts)
+workflow/mitohpc/
+workflow/dragen_out/
+workflow/**/*.bam
+workflow/**/*.bam.bai
+workflow/**/*.bai
+workflow/**/*.cram
+workflow/**/*.crai
+workflow/**/*.vcf
+workflow/**/*.vcf.gz
+workflow/**/*.vcf.gz.tbi
+workflow/**/*.fa
+workflow/**/*.fa.fai
+workflow/**/*.fasta
+workflow/**/*.fasta.fai
+workflow/**/*.dict
+workflow/**/*.bed
+workflow/**/*.score
+workflow/**/*.count
+workflow/**/*.cvg
+workflow/**/*.cvg.*
+workflow/**/*.html
+workflow/**/*.json
+
+# Common BWA/FASTA index sidecars (often generated)
+workflow/**/*.amb
+workflow/**/*.ann
+workflow/**/*.bwt
+workflow/**/*.pac
+workflow/**/*.sa
+
+# Office temp files
+~$*
+
+# Reports / presentations (generated deliverables)
+report/**/*.pdf
+report/**/*.pptx
+report/**/*.docx
+report/**/*.xlsx
+report/tableau/**/*.twb
+report/tableau/**/*.twbr
+
+# Workflow reference blobs / large sidecar files
+workflow/**/*.dat
+workflow/**/*.dat.*
+
+# Local copies
+workflow/sarek/input/* copy.csv
+
+# Build/packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Editor swap/backup files
+*~
+*.swp
+*.swo
+
+# Local secrets
+.env
+.env.*
+
+# Nested git repos (vendor)
+repo/mtdna-server-2/

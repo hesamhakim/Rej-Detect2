@@ -1,0 +1,5 @@
+conda activate nf-core
+
+export NXF_SINGULARITY_CACHEDIR="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mutserv/singularity_cache"
+config="/mmfs1/research/hhakimjavadi/projects/mixture_dna/workflow/mutserv/AMPLIFIED_conataminations.config"
+nextflow run genepi/mtdna-server-2 -r v2.1.16 -c $config -profile singularity -resume
